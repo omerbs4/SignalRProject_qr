@@ -14,5 +14,6 @@ namespace SignalR.DataAccessLayer.EntityFramework
     {
         public EfBookingDal(SignalRContext context) : base(context)
         {
+        }
     }
 }

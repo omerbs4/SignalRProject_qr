@@ -14,5 +14,6 @@ namespace SignalR.DataAccessLayer.EntityFramework
     {
         public EfSocialMediaDal(SignalRContext context) : base(context)
         {
+        }
     }
 }

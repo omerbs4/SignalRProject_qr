@@ -14,5 +14,6 @@ namespace SignalR.DataAccessLayer.EntityFramework
     {
         public EfProductDal(SignalRContext context) : base(context)
         {
+        }
     }
 }
