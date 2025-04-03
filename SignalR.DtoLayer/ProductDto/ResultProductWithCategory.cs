@@ -1,8 +1,12 @@
-﻿using SignalR.EntitiyLayer.Entities;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace SignalRApi.DAL.Entities
+namespace SignalR.DtoLayer.ProductDto
 {
-    public class Product
+    public  class ResultProductWithCategory
     {
         public int ProductID { get; set; }
         public string ProductName { get; set; }
@@ -10,10 +14,6 @@ namespace SignalRApi.DAL.Entities
         public decimal Price { get; set; }
         public string ImageURL { get; set; }
         public bool ProductStatus { get; set; }
-        public int CategoryID { get; set; }
-        public Category Category { get; set; }
-
-
-
+        public string CategoryName { get; set; }
     }
 }
