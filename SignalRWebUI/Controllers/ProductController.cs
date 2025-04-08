@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using SignalRWebUI.Dtos.CategoryDtos;
 using SignalRWebUI.Dtos.ProductDtos;
+using System.Threading.Tasks;
 
 namespace SignalRWebUI.Controllers
 {
@@ -13,6 +15,7 @@ namespace SignalRWebUI.Controllers
         {
             _httpClientFactory = httpClientFactory;
         }
+
         public async Task<IActionResult> Index()
         {
             var client = _httpClientFactory.CreateClient();
@@ -20,8 +23,6 @@ namespace SignalRWebUI.Controllers
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
-                // Deserialize the JSON data into a list of ResultCategoryDtos
-
                 var values = JsonConvert.DeserializeObject<List<ResultProductDtos>>(jsonData);
                 return View(values);
             }
@@ -29,10 +30,22 @@ namespace SignalRWebUI.Controllers
         }
 
         [HttpGet]
-        public IActionResult CreateCategory()
+        public async Task<IActionResult> CreateProduct()
         {
+            var client = _httpClientFactory.CreateClient();
+            var responseMessage = await client.GetAsync("https://localhost:7186/api/Category");
+            var jsonData = await responseMessage.Content.ReadAsStringAsync();
+            var values = JsonConvert.DeserializeObject<List<ResultCategoryDtos>>(jsonData);
+            List<SelectListItem> categoryList = values.Select(x => new SelectListItem
+            {
+                Text = x.CategoryName,
+                Value = x.CategoryID.ToString()
+            }).ToList();
+
+            ViewBag.CategoryList = categoryList;
             return View();
         }
+
         [HttpPost]
         public async Task<IActionResult> CreateProduct(CreateProductDtos createProductDtos)
         {
@@ -41,12 +54,22 @@ namespace SignalRWebUI.Controllers
             var jsonData = JsonConvert.SerializeObject(createProductDtos);
             StringContent content = new StringContent(jsonData, System.Text.Encoding.UTF8, "application/json");
             var responseMessage = await client.PostAsync("https://localhost:7186/api/Product", content);
+
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");
+                var categoryResponse = await client.GetAsync("https://localhost:7186/api/Category");
+                var categoryJson = await categoryResponse.Content.ReadAsStringAsync();
+                var categoryValues = JsonConvert.DeserializeObject<List<ResultCategoryDtos>>(categoryJson);
+                List<SelectListItem> categoryList = categoryValues.Select(x => new SelectListItem
+                {
+                    Text = x.CategoryName,
+                    Value = x.CategoryID.ToString()
+                }).ToList();
             }
             return View();
         }
+
         public async Task<IActionResult> DeleteProduct(int id)
         {
             var client = _httpClientFactory.CreateClient();
@@ -57,6 +80,7 @@ namespace SignalRWebUI.Controllers
             }
             return View();
         }
+
         [HttpGet]
         public async Task<IActionResult> UpdateProduct(int id)
         {
@@ -70,8 +94,8 @@ namespace SignalRWebUI.Controllers
             }
             return View();
         }
-        [HttpPost]
 
+        [HttpPost]
         public async Task<IActionResult> UpdateProduct(UpdateProductDtos updateProductDtos)
         {
             var client = _httpClientFactory.CreateClient();
